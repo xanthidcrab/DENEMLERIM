@@ -4,9 +4,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UserControlInterFaces"
+        xmlns:v="clr-namespace:UserControlInterFaces.MVVM.View" xmlns:viewmodel="clr-namespace:UserControlInterFaces.MVVM.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:DataPanelViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DataGrid Grid.Column="1"  SelectionMode="Extended"  SelectionUnit="FullRow" IsReadOnly="True" HeadersVisibility="Column" AutoGenerateColumns="True" AlternationCount="2"  CanUserAddRows="False" ItemsSource="{Binding Persons}">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <!-- Varsayılan Arka Plan -->
+                    <Setter Property="Background" Value="Aqua"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+
+                    <Style.Triggers>
+                        <!-- Alternatif Renk (LightGray) -->
+                        <Trigger Property="AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="Red" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Green" />
+
+                        </Trigger>
+                      
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+            <v:DataPanel DataContext="{Binding}"/>
     </Grid>
 </Window>

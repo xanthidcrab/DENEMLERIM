@@ -12,19 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using UserControlInterFaces.MVVM.ViewModel;
 
-namespace UserControlInterFaces
+namespace UserControlInterFaces.MVVM.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for DataPanel.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class DataPanel : UserControl
     {
-        public MainWindow()
+        public DataPanel()
         {
             InitializeComponent();
-            DataContext = new DataPanelViewModel();
         }
     }
 }
