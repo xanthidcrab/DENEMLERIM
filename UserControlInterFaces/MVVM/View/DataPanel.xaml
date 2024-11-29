@@ -33,7 +33,11 @@
                 <TextBox Text="{Binding Person.Surname,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="5" FontSize="20" MinWidth="200"/>
                 <DatePicker SelectedDate="{Binding Person.Birth, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="5" FontSize="20" MinWidth="200"/>
                 </StackPanel>
-                <Button Content="Listeye Ekle" Grid.Row="4" Command="{Binding AddToList}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Height="50" Width="120"/>
+                <StackPanel Grid.Row="4" HorizontalAlignment="Center" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+                <Button Content="Listeye Ekle"  Command="{Binding AddToList}" Margin="5"   Height="25" Width="auto"/>
+                <Button Content="Kaydet"  Command="{Binding Save}"  Margin="5"  Height="25" Width="auto"/>
+                <Button Content="Aç"  Command="{Binding OpenXml}"  Margin="5"  Height="25" Width="auto"/>
+                </StackPanel>
 
             </Grid>
         </Border>

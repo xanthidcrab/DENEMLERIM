@@ -29,6 +29,17 @@ namespace UserControlInterFaces.MVVM.ViewModel
                 OnpropertyChange(nameof(Person));
             }
         }
+        private PersonModel _SelectedItem;
+
+        public PersonModel SelectedItem
+        {
+            get { return _Person; }
+            set
+            {
+                _SelectedItem = value;
+                OnpropertyChange(nameof(SelectedItem));
+            }
+        }
         private ObservableCollection<PersonModel> _Persons;
 
         public ObservableCollection<PersonModel>Persons
@@ -41,11 +52,34 @@ namespace UserControlInterFaces.MVVM.ViewModel
             }
         }
         public ICommand AddToList { get; }
+        public ICommand Save { get; }
+        public ICommand OpenXmls { get; }
         public DataPanelViewModel()
         {
             Person = new PersonModel();
             AddToList = new RelayCommand(AddList, CanAddList);
             Persons = new ObservableCollection<PersonModel>();
+            Save = new RelayCommand(SaveXml, CanSaveXml);
+            OpenXmls = new RelayCommand(OpenXml, CanOpenXml);
+        }
+        private void OpenXml(object obj)
+        {
+            throw new NotImplementedException();
+        }
+        private bool CanOpenXml(object arg)
+        {
+            return true;
+        }
+
+        private bool CanSaveXml(object arg)
+        {
+            return true;
+                
+        }
+
+        private void SaveXml(object obj)
+        {
+            Person.XmlPrint();
         }
 
         private void AddList(object p)
