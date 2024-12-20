@@ -37,6 +37,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DI Deneme", "DI Deneme", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiProgram", "DiProgram\DiProgram.csproj", "{D693A5C7-A227-426F-8F06-DD175D40EDF1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CSVVisualizer", "CSVVisualizer", "{53F120E4-EF25-477D-91C7-32C1B8F5C3D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsvVisualizer", "CsvVisualizer\CsvVisualizer.csproj", "{FEA229E1-03A8-4AED-B7C9-F3B514D80555}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,10 @@ Global
 		{D693A5C7-A227-426F-8F06-DD175D40EDF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D693A5C7-A227-426F-8F06-DD175D40EDF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D693A5C7-A227-426F-8F06-DD175D40EDF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEA229E1-03A8-4AED-B7C9-F3B514D80555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEA229E1-03A8-4AED-B7C9-F3B514D80555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEA229E1-03A8-4AED-B7C9-F3B514D80555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEA229E1-03A8-4AED-B7C9-F3B514D80555}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +96,7 @@ Global
 		{3596FFD0-E0F4-4D9C-AAB4-540D75CF6C68} = {03EDA050-1CBD-4EE7-9ACC-22CA5487487E}
 		{74F1B522-704B-43D3-B343-86FCCC34B83B} = {EB943A88-1412-4A96-991D-C92B187B115B}
 		{D693A5C7-A227-426F-8F06-DD175D40EDF1} = {9EDFC3F6-317A-4FFD-88F7-F919C7C2A191}
+		{FEA229E1-03A8-4AED-B7C9-F3B514D80555} = {53F120E4-EF25-477D-91C7-32C1B8F5C3D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FD3B0FC-1125-4043-94C9-7AAFC017B6E7}
