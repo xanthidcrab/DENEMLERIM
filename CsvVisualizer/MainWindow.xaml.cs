@@ -19,6 +19,7 @@ using HelixToolkit; // HelixToolkit namespace'i
 using netDxf; // netDxf namespace'i
 using HelixToolkit.Wpf;
 using Assimp;
+using System.Threading;
 
 namespace CsvVisualizer
 {
@@ -31,17 +32,31 @@ namespace CsvVisualizer
         {
             InitializeComponent();
             Canvas ah = new Canvas();    
-            App.DXFfields.LoadFiles(App.DXFfiles + "ORGA0005.dxf", ah);
+            App.DXFfields.LoadFiles(App.DXFfiles + "19453.dxf", ah);
+            ah.MouseRightButtonDown += Ah_MouseRightButtonDown;
+            ah.Name = "batu";
+            ah.VerticalAlignment = VerticalAlignment.Center;
+            ah.HorizontalAlignment = HorizontalAlignment.Center;
+            harunbaba.Children.Add(ah);
+            
             var a = App.DXFfields.path.Data as PathGeometry;
-            var c = App.DXFfields.ExtrudePath(a,0);
+            var c = App.DXFfields.ExtrudePathWithThickness(a, 22, 2222);
+            //var c = App.DXFfields.ExtrudePolyline(App.DXFfields.lineses,100);
             ModelVisual3D modelVisual = new ModelVisual3D();
             modelVisual.Content = c;
             
             myModelGroup.Children.Add(c);
-            // Viewport'a ekleyin
             
+            // Viewport'a ekleyin
+
         }
-       
+
+        private void Ah_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var a = sender as Canvas;
+            a.Visibility = Visibility.Hidden;
+            myViewport.Visibility = Visibility.Visible;
+        }
 
         private System.Windows.Point _previousMousePosition;
         private double _rotationX = 0; // X ekseni etrafındaki toplam dönüş
