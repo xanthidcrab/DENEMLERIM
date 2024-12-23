@@ -40,7 +40,7 @@ namespace CsvVisualizer
             harunbaba.Children.Add(ah);
             
             var a = App.DXFfields.path.Data as PathGeometry;
-            var c = App.DXFfields.ExtrudePathWithThickness(a, 22, 2222);
+            var c = App.DXFfields.ExtrudePathWithThickness(a, 22, 31);
             //var c = App.DXFfields.ExtrudePolyline(App.DXFfields.lineses,100);
             ModelVisual3D modelVisual = new ModelVisual3D();
             modelVisual.Content = c;
@@ -72,6 +72,90 @@ namespace CsvVisualizer
         private void Viewport3D_MouseUp(object sender, MouseButtonEventArgs e)
         {
             this.ReleaseMouseCapture();
+        }
+
+        // ...
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            myModelGroup.Children.Clear(); // ModelVisual3D içeriğini temizle
+            var a = App.DXFfields.path.Data as PathGeometry;
+            var c = App.DXFfields.ExtrudePathWithThickness(a, Convert.ToInt32(ekstruzyon.Text), Convert.ToInt32(ekstruzyon.Text));
+            myModelGroup.Children.Add(c); // Yeni modeli ekle
+        }
+
+        private void fortyFiver2(object sender, RoutedEventArgs e)
+        {
+            switch (Ameriga2.Content)
+            {
+                case "45°":
+                    Ameriga2.Content = "90°";
+                    break;
+                case "90°":
+                    Ameriga2.Content = "135°";
+                    break;
+                case "135°":
+                    Ameriga2.Content = "45°";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void fortyFiver(object sender, RoutedEventArgs e)
+        {
+            switch (Ameriga.Content)
+            {
+                case "45°":
+                    Ameriga.Content = "90°";
+                    break;
+                case "90°":
+                    Ameriga.Content = "135°";
+                    break;
+                case "135°":
+                    Ameriga.Content = "45°";
+                    break;
+                default:
+                    break;
+            }
+
+            // Geometriyi 45 derece kes
+            var a = App.DXFfields.path.Data as PathGeometry;
+            var c = App.DXFfields.ExtrudePathWithThickness(a, 222, 0);
+            var cutGeometry = CutGeometryAt45Degrees(c);
+            myModelGroup.Children.Clear(); // ModelVisual3D içeriğini temizle
+            myModelGroup.Children.Add(cutGeometry);
+        }
+
+        private GeometryModel3D CutGeometryAt45Degrees(GeometryModel3D geometry)
+        {
+            // Geometriyi 45 derece kesmek için gerekli işlemler
+            // Bu örnekte, geometriyi kesmek için basit bir yöntem kullanıyoruz
+            var mesh = geometry.Geometry as MeshGeometry3D;
+            var positions = mesh.Positions.ToList();
+            var newPositions = new Point3DCollection();
+
+            foreach (var position in positions)
+            {
+                if (position.Z < 0) // Z eksenine göre -45 derece kesim
+                {
+                    newPositions.Add(new Point3D(position.X, position.Y, position.Z * Math.Tan(-Math.PI / 4)));
+                }
+                else
+                {
+                    newPositions.Add(position);
+                }
+            }
+
+            var newMesh = new MeshGeometry3D
+            {
+                Positions = newPositions,
+                TriangleIndices = mesh.TriangleIndices,
+                Normals = mesh.Normals,
+                TextureCoordinates = mesh.TextureCoordinates
+            };
+
+            return new GeometryModel3D(newMesh, geometry.Material);
         }
     }
 }

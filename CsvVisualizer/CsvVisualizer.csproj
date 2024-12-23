@@ -119,6 +119,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CLASSES\DXFfields.cs" />
+    <Compile Include="CLASSES\FileTree.cs" />
     <Compile Include="CLASSES\OPERATIONMODEL.cs" />
     <Compile Include="CLASSES\PROFILEMODEL.cs" />
     <Compile Include="CLASSES\XMLMODEL.cs" />

@@ -10,12 +10,17 @@
         Title="MainWindow" Height="450" Width="800">
 
     <Grid x:Name="harunbaba">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <helix:HelixViewport3D Name="myViewport" ShowCameraInfo="True" Visibility="Hidden">
             <helix:HelixViewport3D.Camera>
+                <!-- Kamera D ekseninden bakıyor -->
                 <PerspectiveCamera x:Name="myCamera"
-                                   Position="0 0 10"
-                                   LookDirection="0 0 -10"
-                                   UpDirection="0 1 0"
+                                   Position="-60 40 -580" 
+                                   LookDirection="0 0 316"
+                                   UpDirection="0 -1 0"
                                    FieldOfView="60"/>
             </helix:HelixViewport3D.Camera>
 
@@ -28,5 +33,13 @@
             </ModelVisual3D>
             <helix:SunLight/>
         </helix:HelixViewport3D>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            
+        <TextBox x:Name="ekstruzyon" Width="500" Height="31"/>
+            <Button Width="120" Margin="10 0 0 0" Content="Extrude" Click="Button_Click" Height="50"/>
+            <Button ToolTip="Profilin Basi" Width="120" Margin="10 0 0 0" Content="45°" Click="fortyFiver" x:Name="Ameriga" Height="50"/>
+            <Button ToolTip="Profilin Sonu" Width="120" Margin="10 0 0 0" Content="45°" Click="fortyFiver2" x:Name="Ameriga2" Height="50"/>
+        </StackPanel>
+        
     </Grid>
 </Window>
