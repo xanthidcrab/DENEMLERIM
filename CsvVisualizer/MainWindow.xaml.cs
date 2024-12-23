@@ -20,6 +20,7 @@ using netDxf; // netDxf namespace'i
 using HelixToolkit.Wpf;
 using Assimp;
 using System.Threading;
+using System.Windows.Interop;
 
 namespace CsvVisualizer
 {
@@ -31,8 +32,17 @@ namespace CsvVisualizer
         public MainWindow()
         {
             InitializeComponent();
-            Canvas ah = new Canvas();    
-            App.DXFfields.LoadFiles(App.DXFfiles + "19453.dxf", ah);
+            Canvas ah = new Canvas();
+            ah.VerticalAlignment = VerticalAlignment.Center;
+            ah.HorizontalAlignment = HorizontalAlignment.Center;
+            
+            Grid.SetColumn(ah, 1);
+         
+            App.DXFfields.LoadFiles(App.DXFfiles + "ORGA0001.dxf", ah);
+           
+        
+
+
             ah.MouseRightButtonDown += Ah_MouseRightButtonDown;
             ah.Name = "batu";
             ah.VerticalAlignment = VerticalAlignment.Center;
@@ -76,12 +86,16 @@ namespace CsvVisualizer
 
         // ...
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public void abc()
         {
             myModelGroup.Children.Clear(); // ModelVisual3D içeriğini temizle
             var a = App.DXFfields.path.Data as PathGeometry;
             var c = App.DXFfields.ExtrudePathWithThickness(a, Convert.ToInt32(ekstruzyon.Text), Convert.ToInt32(ekstruzyon.Text));
             myModelGroup.Children.Add(c); // Yeni modeli ekle
+        }
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            abc();
         }
 
         private void fortyFiver2(object sender, RoutedEventArgs e)

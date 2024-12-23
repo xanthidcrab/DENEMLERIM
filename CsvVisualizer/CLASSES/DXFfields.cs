@@ -16,6 +16,8 @@ using netDxf.Blocks;
 using System.Windows.Media.Media3D;
 using SharpDX;
 using SharpDX.Direct3D11;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace CsvVisualizer.CLASSES
 {
@@ -236,378 +238,6 @@ namespace CsvVisualizer.CLASSES
             };
             return pathFigure;
         }
-        public GeometryModel3D ConvertPathToGeometryModel3D(PathGeometry pathGeometry)
-        {
-            MeshGeometry3D meshGeometry = new MeshGeometry3D();
-            Point3DCollection positions = new Point3DCollection();
-            Int32Collection triangleIndices = new Int32Collection();
-
-            foreach (var pathFigure in pathGeometry.Figures)
-            {
-                List<Point3D> figurePoints = new List<Point3D>();
-                foreach (var segment in pathFigure.Segments)
-                {
-                    if (segment is PolyLineSegment lineSegment)
-                    {
-                        var a = lineSegment.Points;
-                        foreach (var point in a)
-                        {
-                            figurePoints.Add(new Point3D(point.X, point.Y, 0));
-
-                        }
-                    }
-                    else if (segment is ArcSegment arcSegment)
-                    {
-                        // Yay segmentini daha fazla noktayla yaklaşık olarak temsil et
-                        Point3D startPoint = figurePoints.Count > 0 ? figurePoints.Last() : new Point3D(pathFigure.StartPoint.X, pathFigure.StartPoint.Y, 0);
-                        double radiusX = arcSegment.Size.Width;
-                        double radiusY = arcSegment.Size.Height;
-                        double startAngle = Math.Atan2(startPoint.Y - arcSegment.Point.Y, startPoint.X - arcSegment.Point.X) * 180 / Math.PI;
-                        double sweepAngle = arcSegment.IsLargeArc ? (arcSegment.SweepDirection == SweepDirection.Clockwise ? 360 - startAngle : -360 - startAngle) : (arcSegment.SweepDirection == SweepDirection.Clockwise ? startAngle : -startAngle);
-                        int numPoints = Math.Max(3, (int)Math.Abs(sweepAngle) / 10); // Yay uzunluğuna göre nokta sayısı
-                        for (int i = 1; i <= numPoints; i++)
-                        {
-                            double angle = startAngle + sweepAngle * i / numPoints;
-                            double x = arcSegment.Point.X + radiusX * Math.Cos(angle * Math.PI / 180);
-                            double y = arcSegment.Point.Y + radiusY * Math.Sin(angle * Math.PI / 180);
-                            figurePoints.Add(new Point3D(x, y, 0));
-                        }
-                    }
-                }
-
-                // Figure noktalarını üçgenlere dönüştür (fan triangulation)
-                if (figurePoints.Count > 2)
-                {
-                    int firstPointIndex = positions.Count;
-                    foreach (var point in figurePoints)
-                    {
-                        positions.Add(point);
-                    }
-                    for (int i = 1; i < figurePoints.Count - 1; i++)
-                    {
-                        triangleIndices.Add(firstPointIndex);
-                        triangleIndices.Add(firstPointIndex + i);
-                        triangleIndices.Add(firstPointIndex + i + 1);
-                    }
-                }
-            }
-
-            meshGeometry.Positions = positions;
-            meshGeometry.TriangleIndices = triangleIndices;
-
-            Material material = new DiffuseMaterial(new SolidColorBrush(Colors.Black));
-            GeometryModel3D geometryModel = new GeometryModel3D();
-            geometryModel.Geometry = meshGeometry;
-            geometryModel.Material = material;
-
-            return geometryModel;
-        }
-        public GeometryModel3D ExtrudePath(PathGeometry pathGeometry, double extrusionDepth)
-        {
-            MeshGeometry3D meshGeometry = new MeshGeometry3D();
-            List<Point3D> positions = new List<Point3D>(); // List kullanıyoruz
-            Int32Collection triangleIndices = new Int32Collection();
-
-            foreach (var pathFigure in pathGeometry.Figures)
-            {
-                List<Point3D> topPoints = new List<Point3D>();
-                List<Point3D> bottomPoints = new List<Point3D>();
-
-                foreach (var segment in pathFigure.Segments)
-                {
-                    if (segment is PolyLineSegment lineSegment)
-                    {
-                        
-                            var a = lineSegment.Points;
-                            foreach (var point in a)
-                            {
-                            topPoints.Add(new Point3D(point.X, point.Y, extrusionDepth));
-                            bottomPoints.Add(new Point3D(point.X, point.Y, 0));
-
-                        }
-                        
-                        
-                    }
-                    else if (segment is LineSegment LineSegmentasyonu)
-                    {
-                        topPoints.Add(new Point3D(LineSegmentasyonu.Point.X, LineSegmentasyonu.Point.Y, extrusionDepth));
-                        bottomPoints.Add(new Point3D(LineSegmentasyonu.Point.X, LineSegmentasyonu.Point.Y, 0));
-
-                        // Yay segmentini noktalarla yaklaşık olarak temsil et (önceki örnekteki gibi)
-                        //Point3D startPoint = topPoints.Count > 0 ? topPoints.Last() : new Point3D(pathFigure.StartPoint.X, pathFigure.StartPoint.Y, extrusionDepth);
-                        //double radiusX = arcSegment.Size.Width;
-                        //double radiusY = arcSegment.Size.Height;
-                        //double startAngle = Math.Atan2(startPoint.Y - arcSegment.Point.Y, startPoint.X - arcSegment.Point.X) * 180 / Math.PI;
-                        //double sweepAngle = arcSegment.IsLargeArc ? (arcSegment.SweepDirection == SweepDirection.Clockwise ? 360 - startAngle : -360 - startAngle) : (arcSegment.SweepDirection == SweepDirection.Clockwise ? startAngle : -startAngle);
-                        //int numPoints = Math.Max(3, (int)Math.Abs(sweepAngle) / 10);
-                        //for (int i = 1; i <= numPoints; i++)
-                        //{
-                        //    double angle = startAngle + sweepAngle * i / numPoints;
-                        //    double x = arcSegment.Point.X + radiusX * Math.Cos(angle * Math.PI / 180);
-                        //    double y = arcSegment.Point.Y + radiusY * Math.Sin(angle * Math.PI / 180);
-                        //    topPoints.Add(new Point3D(x, y, extrusionDepth));
-                        //    bottomPoints.Add(new Point3D(x, y, 0));
-                        //}
-                    }
-                }
-
-                // Noktaları positions listesine ekle
-                positions.AddRange(bottomPoints);
-                positions.AddRange(topPoints);
-                int bottomCount = bottomPoints.Count;
-
-                // Yan yüzeyler için üçgenleri oluştur
-                for (int i = 0; i < bottomCount - 1; i++)
-                {
-                    triangleIndices.Add(i);
-                    triangleIndices.Add(i + 1);
-                    triangleIndices.Add(bottomCount + i);
-
-                    triangleIndices.Add(i + 1);
-                    triangleIndices.Add(bottomCount + i + 1);
-                    triangleIndices.Add(bottomCount + i);
-                }
-
-                //Kapalı şekiller için başlangıç ve bitiş noktalarını birleştirme
-                if (pathFigure.IsClosed)
-                {
-                    triangleIndices.Add(bottomCount - 1);
-                    triangleIndices.Add(0);
-                    triangleIndices.Add(bottomCount + bottomCount - 1);
-
-                    triangleIndices.Add(0);
-                    triangleIndices.Add(bottomCount);
-                    triangleIndices.Add(bottomCount + bottomCount - 1);
-                }
-            }
-
-            // List<Point3D>'yi Point3DCollection'a dönüştür
-            meshGeometry.Positions = new Point3DCollection(positions); // Dönüştürme burada
-
-            meshGeometry.TriangleIndices = triangleIndices;
-
-            // ... (Malzeme ve GeometryModel3D oluşturma kodları aynı)
-            LinearGradientBrush gradientBrush = new LinearGradientBrush();
-            gradientBrush.StartPoint = new System.Windows.Point(0, 0);
-            gradientBrush.EndPoint = new System.Windows.Point(1, 0);
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Red, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Blue, 1.0));
-
-            // Malzeme oluştur ve gradyanı uygula
-            Material material = new DiffuseMaterial(gradientBrush);
-            GeometryModel3D geometryModel = new GeometryModel3D();
-            geometryModel.Geometry = meshGeometry;
-            geometryModel.Material = material;
-
-            return geometryModel;
-        }
-        public GeometryModel3D ExtrudePath2(PathGeometry pathGeometry, double extrusionDepth)
-        {
-            MeshGeometry3D meshGeometry = new MeshGeometry3D();
-            List<Point3D> positions = new List<Point3D>();
-            Int32Collection triangleIndices = new Int32Collection();
-
-            foreach (var pathFigure in pathGeometry.Figures)
-            {
-                List<Point3D> topPoints = new List<Point3D>();
-                List<Point3D> bottomPoints = new List<Point3D>();
-
-                // Start point
-                System.Windows.Point startPoint = pathFigure.StartPoint;
-                topPoints.Add(new Point3D(startPoint.X, startPoint.Y, extrusionDepth));
-                bottomPoints.Add(new Point3D(startPoint.X, startPoint.Y, 0));
-
-                foreach (var segment in pathFigure.Segments)
-                {
-                    if (segment is PolyLineSegment lineSegment)
-                    {
-                        foreach (var point in lineSegment.Points)
-                        {
-                            topPoints.Add(new Point3D(point.X, point.Y, extrusionDepth));
-                            bottomPoints.Add(new Point3D(point.X, point.Y, 0));
-                        }
-                    }
-                    else if (segment is LineSegment lineSegments)
-                    {
-                        System.Windows.Point point = lineSegments.Point;
-                        topPoints.Add(new Point3D(point.X, point.Y, extrusionDepth));
-                        bottomPoints.Add(new Point3D(point.X, point.Y, 0));
-                    }
-                    else if (segment is ArcSegment arcSegment)
-                    {
-                        Point3D startPoints = topPoints.Count > 0 ? topPoints.Last() : new Point3D(pathFigure.StartPoint.X, pathFigure.StartPoint.Y, extrusionDepth);
-                        double radiusX = arcSegment.Size.Width;
-                        double radiusY = arcSegment.Size.Height;
-                        double startAngle = Math.Atan2(startPoints.Y - arcSegment.Point.Y, startPoint.X - arcSegment.Point.X);
-                        double endAngle = startAngle + (arcSegment.IsLargeArc ? Math.PI : 0) + (arcSegment.SweepDirection == SweepDirection.Clockwise ? 1 : -1) * Math.Acos((arcSegment.Point.X - startPoint.X) / radiusX);
-                        int numPoints = 20; // Daha fazla nokta eklemek, daha düzgün yay verir
-
-                        for (int i = 0; i <= numPoints; i++)
-                        {
-                            double angle = startAngle + (endAngle - startAngle) * i / numPoints;
-                            double x = arcSegment.Point.X + radiusX * Math.Cos(angle);
-                            double y = arcSegment.Point.Y + radiusY * Math.Sin(angle);
-
-                            topPoints.Add(new Point3D(x, y, extrusionDepth));
-                            bottomPoints.Add(new Point3D(x, y, 0));
-                        }
-                    }
-                }
-
-                int bottomStartIndex = positions.Count;
-                positions.AddRange(bottomPoints);
-                int topStartIndex = positions.Count;
-                positions.AddRange(topPoints);
-
-                int pointCount = bottomPoints.Count;
-
-                // Create side faces
-                for (int i = 0; i < pointCount - 1; i++)
-                {
-                    triangleIndices.Add(bottomStartIndex + i);
-                    triangleIndices.Add(bottomStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i);
-
-                    triangleIndices.Add(bottomStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i);
-                }
-
-                // Close the shape if it is closed
-                if (pathFigure.IsClosed)
-                {
-                    triangleIndices.Add(bottomStartIndex + pointCount - 1);
-                    triangleIndices.Add(bottomStartIndex);
-                    triangleIndices.Add(topStartIndex + pointCount - 1);
-
-                    triangleIndices.Add(bottomStartIndex);
-                    triangleIndices.Add(topStartIndex);
-                    triangleIndices.Add(topStartIndex + pointCount - 1);
-                }
-            }
-
-            // Convert List<Point3D> to Point3DCollection
-            meshGeometry.Positions = new Point3DCollection(positions);
-            meshGeometry.TriangleIndices = triangleIndices;
-
-            // Create material and apply gradient
-            LinearGradientBrush gradientBrush = new LinearGradientBrush();
-            gradientBrush.StartPoint = new System.Windows.Point(0, 0);
-            gradientBrush.EndPoint = new System.Windows.Point(1, 0);
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Red, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Blue, 1.0));
-
-            Material material = new DiffuseMaterial(gradientBrush);
-            GeometryModel3D geometryModel = new GeometryModel3D();
-            geometryModel.Geometry = meshGeometry;
-            geometryModel.Material = material;
-
-            return geometryModel;
-        }
-        public GeometryModel3D ExtrudePath3(PathGeometry pathGeometry, double extrusionDepth)
-        {
-            MeshGeometry3D meshGeometry = new MeshGeometry3D();
-            List<Point3D> positions = new List<Point3D>();
-            Int32Collection triangleIndices = new Int32Collection();
-
-            foreach (var pathFigure in pathGeometry.Figures)
-            {
-                List<Point3D> topPoints = new List<Point3D>();
-                List<Point3D> bottomPoints = new List<Point3D>();
-
-                // Start point
-                System.Windows.Point startPoint = pathFigure.StartPoint;
-                topPoints.Add(new Point3D(startPoint.X, startPoint.Y, extrusionDepth));
-                bottomPoints.Add(new Point3D(startPoint.X, startPoint.Y, 0));
-
-                foreach (var segment in pathFigure.Segments)
-                {
-                    if (segment is PolyLineSegment lineSegment)
-                    {
-                        foreach (var point in lineSegment.Points)
-                        {
-                            topPoints.Add(new Point3D(point.X, point.Y, extrusionDepth));
-                            bottomPoints.Add(new Point3D(point.X, point.Y, 0));
-                        }
-                    }
-                    else if (segment is LineSegment lineSegments)
-                    {
-                        System.Windows.Point point = lineSegments.Point;
-                        topPoints.Add(new Point3D(point.X, point.Y, extrusionDepth));
-                        bottomPoints.Add(new Point3D(point.X, point.Y, 0));
-                    }
-                    else if (segment is ArcSegment arcSegment)
-                    {
-                        Point3D startPoints = topPoints.Count > 0 ? topPoints.Last() : new Point3D(pathFigure.StartPoint.X, pathFigure.StartPoint.Y, extrusionDepth);
-                        double radiusX = arcSegment.Size.Width;
-                        double radiusY = arcSegment.Size.Height;
-                        double startAngle = Math.Atan2(startPoints.Y - arcSegment.Point.Y, startPoints.X - arcSegment.Point.X);
-                        double endAngle = startAngle + (arcSegment.IsLargeArc ? Math.PI : 0) + (arcSegment.SweepDirection == SweepDirection.Clockwise ? 1 : -1) * Math.Acos((arcSegment.Point.X - startPoints.X) / radiusX);
-                        int numPoints = 20; // Daha fazla nokta eklemek, daha düzgün yay verir
-
-                        for (int i = 0; i <= numPoints; i++)
-                        {
-                            double angle = startAngle + (endAngle - startAngle) * i / numPoints;
-                            double x = arcSegment.Point.X + radiusX * Math.Cos(angle);
-                            double y = arcSegment.Point.Y + radiusY * Math.Sin(angle);
-
-                            topPoints.Add(new Point3D(x, y, extrusionDepth));
-                            bottomPoints.Add(new Point3D(x, y, 0));
-                        }
-                    }
-                }
-
-                int bottomStartIndex = positions.Count;
-                positions.AddRange(bottomPoints);
-                int topStartIndex = positions.Count;
-                positions.AddRange(topPoints);
-
-                int pointCount = bottomPoints.Count;
-
-                // Create side faces
-                for (int i = 0; i < pointCount - 1; i++)
-                {
-                    triangleIndices.Add(bottomStartIndex + i);
-                    triangleIndices.Add(bottomStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i);
-
-                    triangleIndices.Add(bottomStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i + 1);
-                    triangleIndices.Add(topStartIndex + i);
-                }
-
-                // Close the shape if it is closed
-                if (pathFigure.IsClosed)
-                {
-                    triangleIndices.Add(bottomStartIndex + pointCount - 1);
-                    triangleIndices.Add(bottomStartIndex);
-                    triangleIndices.Add(topStartIndex + pointCount - 1);
-
-                    triangleIndices.Add(bottomStartIndex);
-                    triangleIndices.Add(topStartIndex);
-                    triangleIndices.Add(topStartIndex + pointCount - 1);
-                }
-            }
-
-            // Convert List<Point3D> to Point3DCollection
-            meshGeometry.Positions = new Point3DCollection(positions);
-            meshGeometry.TriangleIndices = triangleIndices;
-
-            // Create material and apply gradient
-            LinearGradientBrush gradientBrush = new LinearGradientBrush();
-            gradientBrush.StartPoint = new System.Windows.Point(0, 0);
-            gradientBrush.EndPoint = new System.Windows.Point(1, 0);
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Red, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Blue, 1.0));
-
-            Material material = new DiffuseMaterial(gradientBrush);
-            GeometryModel3D geometryModel = new GeometryModel3D();
-            geometryModel.Geometry = meshGeometry;
-            geometryModel.Material = material;
-
-            return geometryModel;
-        }
-
         public GeometryModel3D ExtrudePathWithThickness(PathGeometry pathGeometry, double extrusionDepth, double thickness)
         {
             MeshGeometry3D meshGeometry = new MeshGeometry3D();
@@ -753,7 +383,6 @@ namespace CsvVisualizer.CLASSES
             geometryModel.Material = materialGroup;
             return geometryModel;
         }
-
         private void FillAreaBetweenPolylines(MeshGeometry3D meshGeometry, List<Point3D> polyline1, List<Point3D> polyline2, double maxDistance)
         {
             int startIndex = meshGeometry.Positions.Count;
@@ -792,58 +421,71 @@ namespace CsvVisualizer.CLASSES
             }
         }
 
+        public WriteableBitmap DXFtoBitmap(Size size, string dxfdir, Canvas cnv)
+        {
+           
+            //when new dxf is loaded the points and drawing data must be cleared,
+            //this is not required for zooming renders so its only done once.
+           
+     
+            // Measure and arrange the surface
+            // VERY IMPORTANT
+            cnv.Measure(size);
+            cnv.Arrange(new Rect(size));
+
+            cnv.Tag = "TVI";
+
+           
+
+            return SaveAsWriteableBitmap(cnv);
+
+
+
+        }
+        public  WriteableBitmap SaveAsWriteableBitmap(Canvas surface)
+        {
+            if (surface == null) return null;
+
+            // Save current canvas transform
+            Transform transform = surface.LayoutTransform;
+            // reset current transform (in case it is scaled or rotated)
+            surface.LayoutTransform = null;
+
+            System.Windows.Size size = new Size();
+            // Get the size of canvas
+            if (surface.ActualWidth != 0)
+                size = new System.Windows.Size(surface.ActualWidth, surface.ActualHeight);
+            else
+                size = new System.Windows.Size(surface.Width, surface.Height);
+            // Measure and arrange the surface
+            // VERY IMPORTANT
+            surface.Measure(size);
+            surface.Arrange(new Rect(size));
+
+            int offsetX = 0; int offsetY = 0;
+            if (surface.Tag != null && surface.Tag.ToString() == "TVI")// KENARA VE ALTA DAYANAN CIZGILER KESILMESIN DIYE OFFSET
+            { offsetX = 2; offsetY = 2; }
+
+            // Create a render bitmap and push the surface to it
+            RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+              (int)size.Width * 3 + offsetX,
+              (int)size.Height * 3 + offsetY,
+              288d,
+              288d,
+              PixelFormats.Default);
+            renderBitmap.Render(surface);
+
+            //Restore previously saved layout
+            surface.LayoutTransform = transform;
+
+
+            //create and return a new WriteableBitmap using the RenderTargetBitmap
+            return new WriteableBitmap(renderBitmap);
+
+        }
 
         // GeometryModel3D'yi oluşturma
-        public  GeometryModel3D ExtrudePolyline(List<System.Windows.Point> polyline, double extrusionDepth)
-        {
-            MeshGeometry3D meshGeometry = new MeshGeometry3D();
-            List<Point3D> positions = new List<Point3D>();
-            Int32Collection triangleIndices = new Int32Collection();
 
-            // Polylinenin 3D noktalarını oluştur
-            foreach (var point in polyline)
-            {
-                positions.Add(new Point3D(point.X, point.Y, 0)); // Alt yüzey
-                positions.Add(new Point3D(point.X, point.Y, extrusionDepth)); // Üst yüzey
-            }
-
-            int pointCount = polyline.Count;
-
-            // Yanal yüzeyleri oluştur
-            for (int i = 0; i < pointCount - 1; i++)
-            {
-                int baseIndex = i * 2;
-
-                // İlk üçgen
-                triangleIndices.Add(baseIndex);
-                triangleIndices.Add(baseIndex + 1);
-                triangleIndices.Add(baseIndex + 2);
-
-                // İkinci üçgen
-                triangleIndices.Add(baseIndex + 1);
-                triangleIndices.Add(baseIndex + 3);
-                triangleIndices.Add(baseIndex + 2);
-            }
-
-            // Son yüzeyleri kapat
-            int lastIndex = (pointCount - 1) * 2;
-            triangleIndices.Add(lastIndex);
-            triangleIndices.Add(lastIndex + 1);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(lastIndex + 1);
-            triangleIndices.Add(1);
-            triangleIndices.Add(0);
-
-            meshGeometry.Positions = new Point3DCollection(positions);
-            meshGeometry.TriangleIndices = triangleIndices;
-
-            // Malzeme oluştur ve modeli geri döndür
-            DiffuseMaterial material = new DiffuseMaterial(new SolidColorBrush(Colors.Gray));
-            GeometryModel3D geometryModel = new GeometryModel3D(meshGeometry, material);
-
-            return geometryModel;
-        }
     }
 
     

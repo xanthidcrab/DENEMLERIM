@@ -4,17 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsvVisualizer"
-        xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:helix="http://helix-toolkit.org/wpf" 
+        xmlns:ucs="clr-namespace:CsvVisualizer.UCS"
         mc:Ignorable="d"
         WindowState="Maximized"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="1000" Width="1000"
+        >
 
     <Grid x:Name="harunbaba">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="8*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <helix:HelixViewport3D Name="myViewport" ShowCameraInfo="True" Visibility="Hidden">
+        <helix:HelixViewport3D  Grid.Column="1" Name="myViewport" ShowCameraInfo="True" Visibility="Hidden">
             <helix:HelixViewport3D.Camera>
                 <!-- Kamera D ekseninden bakıyor -->
                 <PerspectiveCamera x:Name="myCamera"
@@ -33,12 +39,13 @@
             </ModelVisual3D>
             <helix:SunLight/>
         </helix:HelixViewport3D>
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            
-        <TextBox x:Name="ekstruzyon" Width="500" Height="31"/>
+        <ucs:FolderArea/>
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="1" Orientation="Horizontal">
+            <TextBox x:Name="ekstruzyon" Width="500" Height="31"/>
             <Button Width="120" Margin="10 0 0 0" Content="Extrude" Click="Button_Click" Height="50"/>
             <Button ToolTip="Profilin Basi" Width="120" Margin="10 0 0 0" Content="45°" Click="fortyFiver" x:Name="Ameriga" Height="50"/>
             <Button ToolTip="Profilin Sonu" Width="120" Margin="10 0 0 0" Content="45°" Click="fortyFiver2" x:Name="Ameriga2" Height="50"/>
+            <Image x:Name="osuruk"/>
         </StackPanel>
         
     </Grid>
