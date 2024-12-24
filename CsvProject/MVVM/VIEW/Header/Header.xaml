@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="CsvProject.MVVM.VIEW.Header.Header"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CsvProject.MVVM.VIEW.Header" xmlns:viewmodel="clr-namespace:CsvProject.MVVM.VIEWMODEL" d:DataContext="{d:DesignInstance Type=viewmodel:HeaderViewModel}"
+             mc:Ignorable="d" 
+             >
+    <StackPanel Orientation="Horizontal">
+        <Button Width="120" Height="50" Margin="5" Content="Ana Sayfa"  Command="{Binding AnasayfaClick}"/>
+        <Button Width="120" Height="50" Margin="5" Content="Profiller" Command="{Binding ProfilesClick}"/>
+        <Button Width="120" Height="50" Margin="5" Content="Is Dosyalari" Command="{Binding ProfilesClick}"/>
+        <Button Width="120" Height="50" Margin="5" Content="Ayarlar" Command="{Binding ProfilesClick}"/>
+        <Button Width="120" Height="50" Margin="5"  Content="Cikis" Command="{Binding ProfilesClick}"/>
+    </StackPanel>
+</UserControl>
