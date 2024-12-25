@@ -110,6 +110,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CLASSES\DXFMODEL.cs" />
+    <Compile Include="CLASSES\ICreateSelf.cs" />
+    <Compile Include="CLASSES\MRT1967CSV.cs" />
     <Compile Include="UCS\FolderArea.xaml.cs">
       <DependentUpon>FolderArea.xaml</DependentUpon>
     </Compile>
