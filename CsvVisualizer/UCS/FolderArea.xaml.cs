@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvVisualizer.CLASSES;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,9 +22,9 @@ namespace CsvVisualizer.UCS
     /// </summary>
     public partial class FolderArea : UserControl
     {
-        private SortedList<int, Node> nodes;
+        private SortedList<int, DXFMODEL> nodes;
 
-        public SortedList<int, Node> Nodes
+        public SortedList<int, DXFMODEL> Nodes
         {
             get => nodes;
             set
@@ -40,53 +41,25 @@ namespace CsvVisualizer.UCS
 
             Mv = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
 
-            Nodes = new SortedList<int, Node>();
+            Nodes = new SortedList<int, DXFMODEL>();
             InitFile();
         }
 
         public void InitFile()
         {
-            // Create a new instance of FileSystemWatcher
-            FileSystemWatcher watcher = new FileSystemWatcher();
-
-            // Set the path to the directory you want to monitor
-            string directoryPath = AppDomain.CurrentDomain.BaseDirectory + "DXF\\";
-            watcher.Path = directoryPath;
-            string[] fileNames = Directory.GetFiles(directoryPath);
-
-            // Replace the existing code block with the following code
-            foreach (var item in fileNames)
+            string[] FileNames = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "DXF");
+            foreach (var item in FileNames)
             {
-                FileInfo fileInfo = new FileInfo(item);
-                nodes.Add(Nodes.Count, new Node(nodes.Count, fileInfo.Name, item));
-                TextBlock textBlock = new TextBlock()
+                if (item.EndsWith(".dxf"))
                 {
-                    FontSize = 20,
-                    FontWeight = FontWeights.Bold,
-                    Text = fileInfo.Name,
-                };
-                textBlock.MouseDown += (sender, e) =>
-                {
-
-                    var text = sender as TextBlock;
-                    Mv.myModelGroup.Children.Clear(); // ModelVisual3D içeriğini temizle
-                    var a = App.DXFfields.path.Data as PathGeometry;
-                    App.DXFfields.LoadFiles(App.DXFfiles + text.Text, (Canvas)Mv.harunbaba.Children[3]);
-
-                    var c = App.DXFfields.ExtrudePathWithThickness(a, 222, 222);
-                    Mv.myModelGroup.Children.Add(c); // Yeni modeli ekle
-                    
-                };
-                MainStackPanel.Children.Add(textBlock);
+                    DXFMODEL dxf = new DXFMODEL();
+                    dxf.StockCode = item.Trim().Replace(AppDomain.CurrentDomain.BaseDirectory + "DXF\\", "").Replace(".dxf", "");
+                    dxf.ID = Nodes.Count;
+                    dxf.CreateSelf(Nodes);
+                    Nodes.Add(dxf.ID, dxf);
+                }
+               
             }
-            // Subscribe to the events you want to handle
-            watcher.Created += OnFileCreated;
-            watcher.Deleted += OnFileDeleted;
-            watcher.Changed += OnFileChanged;
-            watcher.Renamed += OnFileRenamed;
-
-            // Enable the watcher to start monitoring
-            watcher.EnableRaisingEvents = true;
         }
 
         // Event handler for file created event
