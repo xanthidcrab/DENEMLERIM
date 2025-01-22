@@ -121,26 +121,10 @@ namespace Barcode
 
         private void AddImageButton(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Title = "Bir resim dosyası seçin",
-                Filter = "Imge Files|*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.gif",
-                FilterIndex = 1,
-                Multiselect = false
-            };
-            openFileDialog.ShowDialog();
-            UCS.Image image = new UCS.Image();
-            image.Size= new Size(100,100);
-            image.mainImage.Source = new BitmapImage(new Uri(openFileDialog.FileName));
-            image.MainWindow = this;
-
-            if (CurrentPaper != null)
-            {
-                Canvas.SetLeft( image,50);
-                Canvas.SetTop( image,50);
-                CurrentPaper.MainCanvas.Children.Add(image);
-                CurrentPaper.ElementList.Add(image);
-            }
+            UCS.Image img = new UCS.Image();
+            img.MainWindow = this;
+            PopupWindow window = new PopupWindow(img, this);
+            window.ShowDialog();
         }
 
         private void OpenPaper(object sender, RoutedEventArgs e)

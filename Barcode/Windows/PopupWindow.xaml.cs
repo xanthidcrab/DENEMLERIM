@@ -49,6 +49,9 @@ namespace Barcode.Windows
                 case 4:
                     MainBorder.Child = new PaperPopUp(this, Data as Paper);
                     break;
+                case 0:
+                    MainBorder.Child = new ImagePopUp(this, Data as UCS.Image);
+                    break;
                 default:
                     break;
             }

@@ -21,7 +21,7 @@ namespace Barcode.UCS
     /// <summary>
     /// Interaction logic for Image.xaml
     /// </summary>
-    public partial class Image : UserControl, IData, IPositions, ISizes, IConvertDataRow
+    public partial class Image : UserControl, IData, IPositions, ISizes, IConvertDataRow, IImage
     {
         private MainWindow _mainWindow;
         private int _id;
@@ -88,6 +88,16 @@ namespace Barcode.UCS
             }
         }
 
+        public string ImagePath
+        {
+            get => mainImage.Source.ToString();
+            set => mainImage.Source = new BitmapImage(new Uri(value));
+        }
+        public BitmapImage Bitmap
+        {
+            get => new BitmapImage(new Uri(mainImage.Source.ToString()));
+
+        }
         public Image()
         {
             InitializeComponent();
