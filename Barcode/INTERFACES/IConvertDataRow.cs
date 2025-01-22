@@ -1,10 +1,12 @@
-﻿using System.Data;
+﻿using Barcode.Classes;
+using System.Data;
 
 namespace Barcode.INTERFACES
 {
     public interface IConvertDataRow
     {
-        DataRow ConvertDataRow(IData data);
+        CRUD CRUD { get;  }
+        DataRow ConvertDataRow();
     }
     
 }

@@ -1,6 +1,8 @@
-﻿using Barcode.INTERFACES;
+﻿using Barcode.Classes;
+using Barcode.INTERFACES;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +21,7 @@ namespace Barcode.UCS
     /// <summary>
     /// Interaction logic for Image.xaml
     /// </summary>
-    public partial class Image : UserControl, IData, IPositions, ISizes
+    public partial class Image : UserControl, IData, IPositions, ISizes, IConvertDataRow
     {
         private MainWindow _mainWindow;
         private int _id;
@@ -27,7 +29,12 @@ namespace Barcode.UCS
         private int _type;
         private Point _position;
         private Size _size;
+       
 
+        public CRUD CRUD
+        {
+            get => new CRUD();
+        }
         
         public Size Size
         {
@@ -84,12 +91,19 @@ namespace Barcode.UCS
         public Image()
         {
             InitializeComponent();
-
+            
 
         }
 
-      
-
-       
+        public DataRow ConvertDataRow()
+        {
+            DataRow row = CRUD.ImageTable.NewRow();
+            row["ID"] = ID;
+            row["ElementName"] = ElementName;
+            row["Width"] = Size.Width;
+            row["Height"] = Size.Height;
+            row["ImagePath"] = mainImage.Source.ToString();
+            return row;
+         }
     }
 }
