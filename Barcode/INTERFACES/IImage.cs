@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Imaging;
+﻿using Barcode.UCS;
+using System.Windows.Media.Imaging;
 
 namespace Barcode.INTERFACES
 {
@@ -6,5 +7,6 @@ namespace Barcode.INTERFACES
     {
         string ImagePath { get; set; }
         BitmapImage Bitmap { get;  }
+         Paper Paper { get; set; }
     }
 }

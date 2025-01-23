@@ -32,6 +32,20 @@ namespace Barcode.UCS
         private Size _size;
         private CRUD _crud;
         private ObservableCollection<IData> elementList;
+        private Size _RealSize;
+
+        public Size RealSize
+        {
+            get
+            {
+                return _RealSize;
+
+            }
+            set
+            {
+                _RealSize = value;
+            }
+        }
 
         public MainWindow MainWindow
         {

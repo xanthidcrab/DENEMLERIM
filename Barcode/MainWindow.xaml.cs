@@ -79,11 +79,79 @@ namespace Barcode
             ElementContainer.Items.Clear();
             foreach (IData item in MainElementList)
             {
-                TextBlock textBox = new TextBlock()
+                StackPanel stackPanel = new StackPanel() 
                 {
-                    Text = item.ElementName
+                    Orientation = Orientation.Horizontal
                 };
-                ElementContainer.Items.Add(textBox);
+                StackPanel stackPanel2 = new StackPanel()
+                {
+                    Orientation = Orientation.Horizontal
+                };
+                StackPanel stackPanel3 = new StackPanel()
+                {
+                    Orientation = Orientation.Horizontal
+                };
+                StackPanel MainStackPanel = new StackPanel()
+                {
+                    
+                };
+                Label label = new Label()
+                {
+                    Content = "ID:",
+                    FontSize = 20,
+                    FontWeight = FontWeights.Bold
+                };
+                stackPanel.Children.Add(label);
+                TextBlock textBlock = new TextBlock()
+                {
+                    Text = $" {item.ID}"
+                    ,
+                    FontSize = 20,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                stackPanel.Children.Add(textBlock);
+                Label label1 = new Label() 
+                {
+                    Content = "Element Type:",
+                    FontSize = 20,
+                    FontWeight = FontWeights.Bold
+                };
+                stackPanel2.Children.Add(label1);
+
+                Label label2 = new Label()
+                {
+                    Content = "Element Name:",
+                    FontSize = 20,
+                    FontWeight = FontWeights.Bold
+                };
+                TextBlock textBlockElementName = new TextBlock()
+                {
+                    Text = $" {item.ElementName}"
+                    ,
+                    FontSize = 20,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                stackPanel3.Children.Add(label2);
+                stackPanel3.Children.Add(textBlockElementName);
+                
+                switch (item.Type)
+                {
+                    case 0:
+                        TextBlock textBlockType = new TextBlock()
+                        {
+                            Text = $" Image",
+                            FontSize = 20,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        stackPanel2.Children.Add(textBlockType);
+                        break;
+                    default:
+                        break;
+                }
+                MainStackPanel.Children.Add(stackPanel);
+                MainStackPanel.Children.Add(stackPanel2);
+                MainStackPanel.Children.Add(stackPanel3);
+                ElementContainer.Items.Add(MainStackPanel);
             }
         }
 
@@ -169,14 +237,9 @@ namespace Barcode
             }
         }
 
-        
-
         private void UpdateBtn(object sender, RoutedEventArgs e)
         {
-            Size size = new Size(Convert.ToDouble((WidthPaper.Text)), Convert.ToDouble(HeightPaper.Text));
 
-            CurrentPaper.Size = Helpers.RatioAlligner(MainBorder, size);
-            CurrentPaper.ElementName = ElementNamePaper.Text;
         }
     }
 }

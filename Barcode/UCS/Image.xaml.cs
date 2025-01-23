@@ -28,8 +28,20 @@ namespace Barcode.UCS
         private string _elementName;
         private int _type;
         private Point _position;
+        private Point _Realposition;
         private Size _size;
-       
+        private Size _Realsize;
+        private Paper _paper;
+
+        public Paper Paper
+            {
+            get { return _paper; } 
+            set 
+            {
+                _paper = value;
+            }
+            }
+
 
         public CRUD CRUD
         {
@@ -44,9 +56,31 @@ namespace Barcode.UCS
                 _size.Height = mainImage.Height;
                 return _size;
             } 
-            set  { mainImage.Width = value.Width;
+            set  {
+                mainImage.Width = value.Width;
                 mainImage.Height = value.Height;
+               
+                
             }
+            
+        }
+        public Size RealSize
+        {
+            get
+            {
+            
+                return _Realsize;
+            }
+            set
+            {
+                _Realsize = value;
+
+
+            }
+
+        }
+        private void ArrangeImage(Size size)
+        {
             
         }
 
@@ -87,7 +121,17 @@ namespace Barcode.UCS
                 Canvas.SetTop(this, value.Y);
             }
         }
-
+        public Point RealPosition
+        {
+            get
+            {
+                return _Realposition;
+            }
+            set
+            {
+               _Realposition = value;
+            }
+        }
         public string ImagePath
         {
             get => mainImage.Source.ToString();

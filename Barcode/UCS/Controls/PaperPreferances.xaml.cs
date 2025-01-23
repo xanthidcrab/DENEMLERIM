@@ -19,7 +19,7 @@ namespace Barcode.UCS.Controls
     /// <summary>
     /// Interaction logic for PaperPreferances.xaml
     /// </summary>
-    public partial class PaperPreferances : UserControl, IData, ISizes
+    public partial class PaperPreferances : UserControl, IData
     {
         private MainWindow _mainWindow;
         private int _ID;

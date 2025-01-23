@@ -42,7 +42,9 @@ namespace Barcode.UCS.Controls
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Paper.Size = Helpers.RatioAlligner(Window.MainWindow.MainBorder, new Size(Convert.ToDouble(WidthPaper.Text), Convert.ToDouble(HeightPaper.Text)));
+            Size RealSize = new Size(Convert.ToDouble(WidthPaper.Text), Convert.ToDouble(HeightPaper.Text));
+            Paper.RealSize = RealSize;
+            Helpers.PaperWidthAligner(Paper, Window.MainWindow.MainBorder);
             Paper.ElementName = ElementNamePaper.Text;
             Paper.ID = Window.MainWindow.ListOfPapers.Count;
             Paper.VerticalAlignment = VerticalAlignment.Center;

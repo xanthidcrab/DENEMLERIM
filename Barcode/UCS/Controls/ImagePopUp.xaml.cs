@@ -1,4 +1,5 @@
-﻿using Barcode.INTERFACES;
+﻿using Barcode.Classes;
+using Barcode.INTERFACES;
 using Barcode.Properties;
 using Barcode.Windows;
 using Microsoft.Win32;
@@ -31,6 +32,10 @@ namespace Barcode.UCS.Controls
             InitializeComponent();
             Popup = popup;
             Image = (Image)image;
+            if (Popup.MainWindow.CurrentPaper != null)
+            {
+                IDtb.Text = Popup.MainWindow.CurrentPaper.ElementList.Count.ToString();
+            }
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -44,28 +49,37 @@ namespace Barcode.UCS.Controls
             };
             openFileDialog.ShowDialog();
            
-            Size size = new Size(Convert.ToDouble(WidthPaper), Convert.ToDouble(HeightPaper));
-            Image.Size = size;
             Image.ImagePath = openFileDialog.FileName;
-            Image.MainWindow = Popup.MainWindow;
+            ImagePath.Text = openFileDialog.FileName;
+        }
 
+        private void OkButtonClick(object sender, RoutedEventArgs e)
+        {
+            Size size = new Size(Convert.ToDouble(WidthPaper.Text), Convert.ToDouble(HeightPaper.Text));
+            Image.Paper = Popup.MainWindow.CurrentPaper;
+            Image.RealSize = size;
+            Helpers.ElementAllignerWidth(Image, Image.Paper);
+            Image.MainWindow = Popup.MainWindow;
+            Image.ElementName = ElementNamePaper.Text;
+            Image.ID = Popup.MainWindow.CurrentPaper.ElementList.Count;
             if (Popup.MainWindow.CurrentPaper != null)
             {
-                Canvas.SetLeft(Image, 50);
-                Canvas.SetTop(Image, 50);
+                double x = 0;
+                double y = 0;
+                Double.TryParse(xpos.Text,out x);
+                Double.TryParse(ypos.Text,out y);
+                Point point = new Point(x, y);
+                this.Image.RealPosition = point;
+                Helpers.WidthAligner(Image.Paper, Image);
+
                 Popup.MainWindow.CurrentPaper.MainCanvas.Children.Add(Image);
                 Popup.MainWindow.CurrentPaper.ElementList.Add(Image);
             }
         }
 
-        private void OkButtonClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void ExitButtonClick(object sender, RoutedEventArgs e)
         {
-
+            Popup.Close();
         }
     }
 }
