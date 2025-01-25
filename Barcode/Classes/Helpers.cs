@@ -31,7 +31,7 @@ namespace Barcode.Classes
             }
         }
   
-        public static void WidthAligner(Paper paper, IPositions element)
+        public static void PositionsAlligner(Paper paper, IPositions element)
         {
             // Elementin pozisyonunu alıyoruz (x, y koordinatları)
             var elementPosition = element.RealPosition;
@@ -41,23 +41,27 @@ namespace Barcode.Classes
             var paperRealHeight = paper.RealSize.Height;
 
             // Paper'ın aktif genişlik ve yüksekliği
-            var paperActHeight = paper.ActualHeight;
-            var paperActWidth = paper.ActualWidth;
+            var paperActHeight = paper.Size.Height;
+            var paperActWidth = paper.Size.Width;
 
             var pwxprw = paperActWidth * elementPosition.X;
             var paxprh = paperActHeight * elementPosition.Y;
             var widthCont = element as ISizes;
 
-            var x = (pwxprw/paperRealWidth) - widthCont.Size.Width ;
-            var y = (paxprh/paperRealHeight) - widthCont.Size.Height;
+            var x = (pwxprw/paperRealWidth) - (widthCont.Size.Width / 2) ;
+            var y = (paxprh/paperRealHeight) - (widthCont.Size.Height / 2);
             // Paper'ın pozisyonunu ayarla
             element.Position = new Point(x, y);
+
+            
         }
         public static void PaperWidthAligner(ISizes paper, Border border)
         {
             // Kağıdın gerçek genişlik ve yüksekliği
             var paperRealWidth = paper.RealSize.Width;
             var paperRealHeight = paper.RealSize.Height;
+
+
 
             // Border'ın gerçek genişlik ve yüksekliği
             var borderActHeight = border.ActualHeight;
@@ -81,35 +85,58 @@ namespace Barcode.Classes
             var offsetX = (borderActWidth - targetWidth) / 2;
             var offsetY = (borderActHeight - targetHeight) / 2;
         }
-        public static void ElementAllignerWidth(ISizes paper, Paper border)
+        public static void ElementAllignerWidth(ISizes Element, Paper Paper)
         {
             // Kağıdın gerçek genişlik ve yüksekliği
-            var paperRealWidth = paper.RealSize.Width;
-            var paperRealHeight = paper.RealSize.Height;
+            var ElementRealWidth = Element.RealSize.Width;
+            var ElementRealHeight = Element.RealSize.Height;
 
-            var paperActWidth = border.Size.Width;
-            var paperActHeight = border.Size.Height;
+            var ElementActWidth = Paper.Size.Width;
+            var ElementActHeight = Paper.Size.Height;
 
-            var borderRealw = border.RealSize.Width;
-            var borderRealh = border.RealSize.Height;
+            var PaperRealw = Paper.RealSize.Width;
+            var PaperRealh = Paper.RealSize.Height;
 
-            // Border'ın gerçek genişlik ve yüksekliği
-            var borderActHeight = border.ActualHeight;
-            var borderActWidth = border.ActualWidth;
+            // Paper'ın gerçek genişlik ve yüksekliği
+            var PaperActHeight = Paper.PaperCanvas.ActualHeight;
+            var PaperActWidth = Paper.PaperCanvas.ActualWidth;
 
-            var targetWidth = (paperRealWidth * borderActWidth) / borderRealw;
+            var targetWidth = (ElementRealWidth * ElementActWidth) / PaperRealw;
 
-            var targetHeight = (paperRealHeight * borderActHeight) / borderRealh;
+            var targetHeight = (ElementRealHeight * ElementActHeight) / PaperRealh;
 
 
-            // Paper'ı hizalama (gerçek boyutları atama)
+            // Element'ı hizalama (gerçek boyutları atama)
             Size size = new Size(targetWidth, targetHeight);
-            paper.Size = size;
+            Element.Size = size;
 
-            // Paper'ı Border'ın merkezine yerleştirmek
-            var offsetX = (borderActWidth - targetWidth) / 2;
-            var offsetY = (borderActHeight - targetHeight) / 2;
+            // Element'ı Paper'ın merkezine yerleştirmek
+            var offsetX = (PaperActWidth - targetWidth) / 2;
+            var offsetY = (PaperActHeight - targetHeight) / 2;
             
+        }
+        public static void UpdateRealPos(IPositions element)
+        {
+            var elementsizes = (ISizes)element;
+            var elementPosition = element.Position;
+            var elementRealPosition = element.RealPosition; 
+           var elementSize = elementsizes.Size;    
+            var elementRealSize = elementsizes.RealSize;
+            var elementPaper = (IHasPaper)element;
+            var paper = elementPaper.Paper;
+            var paperRealSize = paper.RealSize;
+            var paperSize = paper.Size;
+
+            var ratioX = elementPosition.X / elementRealPosition.X;
+            var ratioY = elementPosition.Y / elementRealPosition.Y;
+
+            var newX = element.Position.X * ratioX;
+            var newY = element.Position.Y * ratioY;
+
+            Point newRealPosition = new Point(newX, newY);
+            element.RealPosition = newRealPosition;
+
+
         }
     }
 }

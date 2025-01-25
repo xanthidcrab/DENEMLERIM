@@ -1,11 +1,11 @@
 ﻿namespace Barcode.INTERFACES
 {
-    public interface ITexts
+    public interface ITexts: IHasPaper
     {
-        string FontFamily { get; set; }
-        int FontSize { get; set; }
-        string FontStyle { get; set; }
-        string FontWeight { get; set; }
-        string Text { get; set; }
+        string FontFamilys { get; set; }
+        double FontSizes { get; set; }
+        string FontStylese { get; set; }
+        string FontWeightse { get; set; }
+        string Textss { get; set; }
     }
 }

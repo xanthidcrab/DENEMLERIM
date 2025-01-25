@@ -70,9 +70,7 @@ namespace Barcode.UCS.Controls
                 Double.TryParse(ypos.Text,out y);
                 Point point = new Point(x, y);
                 this.Image.RealPosition = point;
-                Helpers.WidthAligner(Image.Paper, Image);
 
-                Popup.MainWindow.CurrentPaper.MainCanvas.Children.Add(Image);
                 Popup.MainWindow.CurrentPaper.ElementList.Add(Image);
             }
         }

@@ -58,12 +58,17 @@
     <Compile Include="Classes\CRUD.cs" />
     <Compile Include="Classes\Helpers.cs" />
     <Compile Include="INTERFACES\IConvertDataRow.cs" />
+    <Compile Include="INTERFACES\IHasPaper.cs" />
+    <Compile Include="INTERFACES\IPaper.cs" />
     <Compile Include="Properties\CurrentPaperCb.cs" />
     <Compile Include="UCS\Controls\ElementPreferences.xaml.cs">
       <DependentUpon>ElementPreferences.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCS\Controls\ImagePopUp.xaml.cs">
       <DependentUpon>ImagePopUp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCS\Controls\ImagePreferance.xaml.cs">
+      <DependentUpon>ImagePreferance.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCS\Controls\PaperPopUp.xaml.cs">
       <DependentUpon>PaperPopUp.xaml</DependentUpon>
@@ -74,8 +79,14 @@
     <Compile Include="UCS\Image.xaml.cs">
       <DependentUpon>Image.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCS\LabelBorcode.xaml.cs">
+      <DependentUpon>LabelBorcode.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCS\Paper.xaml.cs">
       <DependentUpon>Paper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCS\Text.xaml.cs">
+      <DependentUpon>Text.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\PopupWindow.xaml.cs">
       <DependentUpon>PopupWindow.xaml</DependentUpon>
@@ -106,6 +117,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCS\Controls\ImagePreferance.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCS\Controls\PaperPopUp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -118,7 +133,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCS\LabelBorcode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCS\Paper.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCS\Text.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

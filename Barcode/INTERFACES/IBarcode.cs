@@ -1,6 +1,6 @@
 ﻿namespace Barcode.INTERFACES
 {
-    public interface IBarcode
+    public interface IBarcode: IHasPaper
     {
         
         string BarcodeCode { get; set; }

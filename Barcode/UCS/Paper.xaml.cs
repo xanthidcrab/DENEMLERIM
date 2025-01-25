@@ -23,7 +23,7 @@ namespace Barcode.UCS
     /// <summary>
     /// Interaction logic for Paper.xaml
     /// </summary>
-    public partial class Paper : UserControl, IData, ISizes, IConvertDataRow
+    public partial class Paper : UserControl, IData, ISizes, IConvertDataRow, IPaper
     {
         private MainWindow _mainWindow;
         private int _id;
@@ -44,6 +44,7 @@ namespace Barcode.UCS
             set
             {
                 _RealSize = value;
+                Helpers.PaperWidthAligner(this, MainWindow.MainBorder);
             }
         }
 
@@ -97,18 +98,47 @@ namespace Barcode.UCS
             }
         }
 
-        public Paper()
+        public Canvas PaperCanvas { 
+            get =>  MainCanvas;
+            set => MainCanvas = value; 
+        }
+
+        public Paper(CRUD cRUD)
         {
             ElementList = new ObservableCollection<IData>();
             ElementList.CollectionChanged += ElementList_CollectionChanged;
-            _crud= new CRUD();
+            _crud= cRUD;
             InitializeComponent();
 
         }
 
         private void ElementList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            MainWindow.MainElementList = ElementList;
+            foreach (IData item in elementList)
+            {
+                switch (item.Type)
+                {
+                   case 0:
+                        Image img = (Image)item;
+                        foreach (IData id in elementList)
+                        {
+                            if (img.ID == id.ID && elementList.Count > 1)
+                            {
+                                break;
+                            }
+                            else
+                            {
+
+                                MainCanvas.Children.Add(img);
+                            }
+                        }
+                        
+                        break;
+                    default:
+                        break;
+                }
+            }
+           
         }
 
         public DataRow ConvertDataRow()
@@ -116,14 +146,15 @@ namespace Barcode.UCS
             DataRow row = CRUD.PaperTable.NewRow();
             row["ID"] = _id;
             row["ElementName"] = _elementName;
-            row["Width"] = _size.Width;
-            row["Height"] = _size.Height;
+            row["Width"] = _RealSize.Width;
+            row["Height"] = _RealSize.Height;
 
             return row;
 
         }
+        
 
-       
+
 
     }
 }

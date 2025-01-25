@@ -1,12 +1,14 @@
 ﻿using Barcode.Classes;
 using Barcode.INTERFACES;
 using Barcode.UCS;
+using Barcode.UCS.Controls;
 using Barcode.Windows;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,6 +22,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace Barcode
 {
@@ -28,6 +31,12 @@ namespace Barcode
     /// </summary>
     public partial class MainWindow : Window
     {
+        private CRUD _Crud;
+        public CRUD Crud
+        {
+            get => _Crud;
+            set => _Crud = value;
+        }
         public Paper CurrentPaper 
         { 
             get 
@@ -37,19 +46,55 @@ namespace Barcode
             set {
                 currentPaper = value;
                 LoadTable();
+                MainElementList = currentPaper.ElementList;
+                UpdatePaper();
+                CurrentPaper.MouseMove += CurrentPaper_MouseMove;
                     }
+        }
+        private Point _mousePosition;
+        public Point MousePosition 
+        {
+            get
+            {
+                return _mousePosition;
+            }
+            set
+            {
+                if (ChosenElement != null && Mouse.LeftButton == MouseButtonState.Pressed)
+                {
+                    var chosenPos = (IPositions)ChosenElement;
+                    var chosenSize = (ISizes)ChosenElement;
+                    Point point = new Point(value.X - chosenSize.Size.Width / 2, value.Y - chosenSize.Size.Height / 2);
+                    if (point.X + chosenSize.Size.Width <= currentPaper.Size.Width && point.X - chosenSize.Size.Width / 2 >= 0)
+                    {
+                    chosenPos.Position = point;
+
+                    }
+                    //Helpers.UpdateRealPos(chosenPos);
+                }
+            }
+        }
+        private void CurrentPaper_MouseMove(object sender, MouseEventArgs e)
+        {
+            MousePosition = e.GetPosition(currentPaper);
+        }
+
+        private void UpdatePaper()
+        {
+            MainBorder.Child = null;
+            MainBorder.Child = currentPaper;
         }
 
         private void LoadTable()
         {
             IDtb.Text = currentPaper.ID.ToString();
             ElementNamePaper.Text = currentPaper.ElementName;
-            Size newSize = Helpers.TempSize;
-            WidthPaper.Text = newSize.Width.ToString();
-            HeightPaper.Text = newSize.Height.ToString();
+            
+            WidthPaper.Text = currentPaper.RealSize.Width.ToString();
+            HeightPaper.Text = currentPaper.RealSize.Width.ToString();
 
         }
-
+        
         private ObservableCollection<Paper> _ListOfPapers;
         private Paper currentPaper;
 
@@ -71,6 +116,32 @@ namespace Barcode
             { 
                 _MainElementlist = value;
                 OnMainElementListChange();
+            }
+        }
+        private IData _ChosenElement;
+        public IData ChosenElement
+        {
+            get { return _ChosenElement; }
+            set 
+            { 
+                _ChosenElement = value;
+                UpdateTable();
+            }
+        }
+
+        private void UpdateTable()
+        {
+            ChosenGridi.Child = null;
+
+            switch (ChosenElement.Type)
+            {
+                case 0:
+                    ChosenGridi.Child = new ImagePreferance(ChosenElement);
+                    PrefTable.Text = "Image Preferance";
+                    break;
+                default:
+                    break;
+
             }
         }
 
@@ -151,6 +222,7 @@ namespace Barcode
                 MainStackPanel.Children.Add(stackPanel);
                 MainStackPanel.Children.Add(stackPanel2);
                 MainStackPanel.Children.Add(stackPanel3);
+                MainStackPanel.Tag = item;
                 ElementContainer.Items.Add(MainStackPanel);
             }
         }
@@ -158,13 +230,17 @@ namespace Barcode
         public MainWindow()
         {
             InitializeComponent();
-            CRUD cRUD = new CRUD();
+            _mousePosition = new Point();
+            Crud = new CRUD();
+            Crud.MainWindow = this;
             ListOfPapers =new ObservableCollection<Paper>();
             MainElementList = new ObservableCollection<IData>();
             ListOfPapers.CollectionChanged += ListOfPapers_CollectionChanged;
-            cRUD.SaveXml("HRN");
             Helpers.UpdateUI(PaperCb);
+            
         }
+
+       
 
         private void ListOfPapers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -197,8 +273,17 @@ namespace Barcode
 
         private void OpenPaper(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "XML Files (*.xml)|*.xml";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string filePath = openFileDialog.FileName;
+                Crud.XmlDataset.Clear();
+                Crud.XmlDataset.ReadXml(filePath);
+                Paper ppr = Crud.XmlToPaper();
+                CurrentPaper = ppr;
+            }
             
-
         }
 
         private void AddBarcodeButton(object sender, RoutedEventArgs e)
@@ -213,13 +298,30 @@ namespace Barcode
 
         private void SavePaper(object sender, RoutedEventArgs e)
         {
+            
+            DataRow paper = currentPaper.ConvertDataRow();
+            Crud.PaperTable.Rows.Add(paper);
+            foreach (IData item in currentPaper.ElementList)
+            {
+                switch (item.Type)
+                {
+                    case 0:
+                        UCS.Image image = item as UCS.Image;
+                        DataRow dataRow = image.ConvertDataRow();
+                        Crud.ImageTable.Rows.Add(dataRow);  
 
+                        break;
+                    default:
+                        break;
+                }
+            }
+                        Crud.SaveXml(CurrentPaper.ElementName);
         }
 
         private void AddPaper(object sender, RoutedEventArgs e)
         {
 
-            Paper paper = new Paper();
+            Paper paper = new Paper(Crud);
             paper.MainWindow = this;
             PopupWindow window = new PopupWindow(paper, this);
             window.ShowDialog();
@@ -230,8 +332,9 @@ namespace Barcode
             if (PaperCb.SelectedIndex != -1)
             {
 
-            CurrentPaper = ListOfPapers[PaperCb.SelectedIndex];
-            MainBorder.Child = CurrentPaper;
+            Crud.XmlDataset.Clear();
+            Crud.XmlDataset.ReadXml(AppDomain.CurrentDomain.BaseDirectory + "PAPERS\\"+ PaperCb.SelectedItem); 
+            CurrentPaper = Crud.XmlToPaper();
             Properties.Settings.Default.PaperCbSelectedIndex = PaperCb.SelectedIndex;
             Properties.Settings.Default.Save();
             }
@@ -241,5 +344,15 @@ namespace Barcode
         {
 
         }
+
+        private void CurrentElementSelectionchanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ElementContainer.SelectedIndex != -1)
+                ChosenElement = MainElementList[ElementContainer.SelectedIndex];
+            else
+                ChosenElement = MainElementList[ElementContainer.SelectedIndex+1];
+
+        }
+        
     }
 }

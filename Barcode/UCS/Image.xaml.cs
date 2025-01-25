@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace Barcode.UCS
 {
@@ -45,7 +46,7 @@ namespace Barcode.UCS
 
         public CRUD CRUD
         {
-            get => new CRUD();
+            get => MainWindow.Crud;
         }
         
         public Size Size
@@ -75,8 +76,12 @@ namespace Barcode.UCS
             {
                 _Realsize = value;
 
-
             }
+
+        }
+        public void RelsizeFirstDef()
+        {
+            Helpers.ElementAllignerWidth(this, Paper);
 
         }
         private void ArrangeImage(Size size)
@@ -130,6 +135,7 @@ namespace Barcode.UCS
             set
             {
                _Realposition = value;
+                Helpers.PositionsAlligner(Paper, this);
             }
         }
         public string ImagePath
@@ -139,9 +145,47 @@ namespace Barcode.UCS
         }
         public BitmapImage Bitmap
         {
-            get => new BitmapImage(new Uri(mainImage.Source.ToString()));
+            get
+            {
+                // Orijinal bitmapi al
+                var originalBitmap = new BitmapImage(new Uri(mainImage.Source.ToString()));
 
+                // Orijinal boyutları al
+                double originalWidth = originalBitmap.PixelWidth;
+                double originalHeight = originalBitmap.PixelHeight;
+
+                // Eğer bitmap 200x200'den büyükse, oranlayarak küçült
+                if (originalWidth > 200 || originalHeight > 200)
+                {
+                    // 24x24 hedef boyutlar için ölçek faktörünü hesapla
+                    double scaleFactor = Math.Min(24.0 / originalWidth, 24.0 / originalHeight);
+
+                    // Yeni ölçeklendirilmiş bitmap oluştur
+                    var scaledBitmap = new TransformedBitmap(originalBitmap, new System.Windows.Media.ScaleTransform(scaleFactor, scaleFactor));
+
+                    // TransformedBitmap'i BitmapImage'e dönüştür
+                    var resizedBitmap = new BitmapImage();
+                    using (var stream = new System.IO.MemoryStream())
+                    {
+                        var encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(scaledBitmap));
+                        encoder.Save(stream);
+                        stream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                        resizedBitmap.BeginInit();
+                        resizedBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        resizedBitmap.StreamSource = stream;
+                        resizedBitmap.EndInit();
+                    }
+
+                    return resizedBitmap; // Küçültülmüş bitmap döndür
+                }
+
+                // Bitmap zaten küçükse, oranlanmış olarak direkt döndür
+                return originalBitmap; // Bu satırda artık orijinal bitmap döndürülmüyor
+            }
         }
+
         public Image()
         {
             InitializeComponent();
@@ -151,13 +195,20 @@ namespace Barcode.UCS
 
         public DataRow ConvertDataRow()
         {
-            DataRow row = CRUD.ImageTable.NewRow();
+            DataRow row = MainWindow.Crud.ImageTable.NewRow();
             row["ID"] = ID;
             row["ElementName"] = ElementName;
-            row["Width"] = Size.Width;
-            row["Height"] = Size.Height;
+            row["Width"] = RealSize.Width;
+            row["Height"] = RealSize.Height;
             row["ImagePath"] = mainImage.Source.ToString();
+            row["Xpos"] = RealPosition.X;
+            row["Ypos"] = RealPosition.Y;
             return row;
          }
+
+        public void UserControl_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            MainWindow.ElementContainer.SelectedIndex = ID;
+        }
     }
 }
